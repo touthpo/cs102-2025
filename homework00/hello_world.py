@@ -1,6 +1,7 @@
-"""1"""
+"""hi"""
 
 
-def text(message):
-    """123"""
+def text():
+    """hello"""
+    message = "message"
     return message
