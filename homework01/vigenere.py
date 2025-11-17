@@ -14,14 +14,14 @@ def encrypt_vigenere(plaintext: str, keyword: str) -> str:
     for i, char in enumerate(plaintext):
         if char.isalpha():
             key_char = keyword[i % key_length]
-            key_shift = ord(key_char) - ord('A')
+            key_shift = ord(key_char) - ord("A")
             
             if char.isupper():
-                start = ord('A')
+                start = ord("A")
                 encrypted_char = chr((ord(char) - start + key_shift) % 26 + start)
                 ciphertext += encrypted_char
             else:
-                start = ord('a')
+                start = ord("a")
                 encrypted_char = chr((ord(char) - start + key_shift) % 26 + start)
                 ciphertext += encrypted_char
         else:
@@ -47,14 +47,14 @@ def decrypt_vigenere(ciphertext: str, keyword: str) -> str:
     for i, char in enumerate(ciphertext):
         if char.isalpha():
             key_char = keyword[i % key_length]
-            key_shift = ord(key_char) - ord('A')
+            key_shift = ord(key_char) - ord("A")
             
             if char.isupper():
-                start = ord('A')
+                start = ord("A")
                 decrypted_char = chr((ord(char) - start - key_shift) % 26 + start)
                 plaintext += decrypted_char
             else:
-                start = ord('a')
+                start = ord("a")
                 decrypted_char = chr((ord(char) - start - key_shift) % 26 + start)
                 plaintext += decrypted_char
         else:
