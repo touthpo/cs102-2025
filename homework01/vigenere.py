@@ -15,7 +15,6 @@ def encrypt_vigenere(plaintext: str, keyword: str) -> str:
         if char.isalpha():
             key_char = keyword[i % key_length]
             key_shift = ord(key_char) - ord("A")
-            
             if char.isupper():
                 start = ord("A")
                 encrypted_char = chr((ord(char) - start + key_shift) % 26 + start)
@@ -40,15 +39,12 @@ def decrypt_vigenere(ciphertext: str, keyword: str) -> str:
     'ATTACKATDAWN'
     """
     plaintext = ""
-    
     keyword = keyword.upper()
     key_length = len(keyword)
-    
     for i, char in enumerate(ciphertext):
         if char.isalpha():
             key_char = keyword[i % key_length]
             key_shift = ord(key_char) - ord("A")
-            
             if char.isupper():
                 start = ord("A")
                 decrypted_char = chr((ord(char) - start - key_shift) % 26 + start)
