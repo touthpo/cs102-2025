@@ -100,7 +100,11 @@ def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[in
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
-    pass
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            if grid[i][j] == '.':
+                return (i, j)
+    return None
 
 
 def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
@@ -113,7 +117,15 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
     >>> values == {'2', '5', '9'}
     True
     """
-    pass
+    row_vals = get_row(grid, pos)
+    col_vals = get_col(grid, pos)
+    block_vals = get_block(grid, pos)
+    occupied = {
+        val for val in row_vals + col_vals + block_vals 
+        if val != '.'
+    }
+    all_values = {str(i) for i in range(1, 10)}
+    return all_values - occupied
 
 
 def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
@@ -128,7 +140,18 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
     >>> solve(grid)
     [['5', '3', '4', '6', '7', '8', '9', '1', '2'], ['6', '7', '2', '1', '9', '5', '3', '4', '8'], ['1', '9', '8', '3', '4', '2', '5', '6', '7'], ['8', '5', '9', '7', '6', '1', '4', '2', '3'], ['4', '2', '6', '8', '5', '3', '7', '9', '1'], ['7', '1', '3', '9', '2', '4', '8', '5', '6'], ['9', '6', '1', '5', '3', '7', '2', '8', '4'], ['2', '8', '7', '4', '1', '9', '6', '3', '5'], ['3', '4', '5', '2', '8', '6', '1', '7', '9']]
     """
-    pass
+    empty_pos = find_empty_positions(grid)
+    if empty_pos is None:
+        return grid
+    row, col = empty_pos  # Распаковываем позицию
+    possible_values = find_possible_values(grid, (row, col))
+    for value in possible_values:
+        grid[row][col] = value
+        result = solve(grid)
+        if result is not None:
+            return result
+        grid[row][col] = '.'
+    return None
 
 
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
