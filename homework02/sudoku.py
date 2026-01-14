@@ -157,7 +157,23 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
     """ Если решение solution верно, то вернуть True, в противном случае False """
     # TODO: Add doctests with bad puzzles
-    pass
+    for row in range(len(grid)):
+        row_values = get_row(grid, (row, 0))
+        if len(set(row_values)) != 9 or '.' in row_values:
+            return False
+    for col in range(len(grid[0])):
+        col_values = get_col(grid, (0, col))  # Берем любую строку в этом столбце
+        if len(set(col_values)) != 9 or '.' in col_values:
+            return False
+    for block_row in range(0, 9, 3):
+        for block_col in range(0, 9, 3):
+            block_values = []
+            for i in range(3):
+                for j in range(3):
+                    block_values.append(grid[block_row + i][block_col + j])
+            if len(set(block_values)) != 9 or '.' in block_values:
+                return False
+    return True
 
 
 def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
@@ -193,3 +209,7 @@ if __name__ == "__main__":
             print(f"Puzzle {fname} can't be solved")
         else:
             display(solution)
+            if check_solution(solution):
+                print("Solution is correct")
+            else:
+                print("Ooops")
