@@ -148,7 +148,7 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
     return None
 
 
-def check_solution(grip: tp.List[tp.List[str]]) -> bool:
+def check_solution(grid: tp.List[tp.List[str]]) -> bool:
     """Если решение solution верно, то вернуть True, в противном случае False"""
     # TODO: Add doctests with bad puzzles
     for row in range(len(grid)):
@@ -219,12 +219,14 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
             ["2", "8", "7", "4", "1", "9", "6", "3", "5"],
             ["3", "4", "5", "2", "8", "6", "1", "7", "9"],
         ]
-    result = copy.deepcopy(solved)
-    all_cells = [(r, c) for r in range(9) for c in range(9)]
-    cells_to_remove = random.sample(all_cells, 81 - N)
-    for row, col in cells_to_remove:
-        result[row][col] = "."
-    return result
+    grid = copy.deepcopy(solved)
+    all_positions = [(i, j) for i in range(9) for j in range(9)]
+    to_remove = 81 - N
+    if to_remove > 0:
+        remove_positions = random.sample(all_positions, to_remove)
+        for row, col in remove_positions:
+            grid[row][col] = "."
+    return grid
 
 
 if __name__ == "__main__":
