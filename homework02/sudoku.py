@@ -85,7 +85,6 @@ def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[s
     for i in range(start_row, start_row + 3):
         for j in range(start_col, start_col + 3):
             block_values.append(grid[i][j])
-    
     return block_values
 
 
