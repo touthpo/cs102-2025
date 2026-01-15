@@ -80,6 +80,7 @@ def encircled_exit(grid: List[List[Union[str, int]]], coord: Tuple[int, int]) ->
 
     return passable == 0
 
+
 def bfs_find_path(grid, start, end):
     if grid is None:
         return None
@@ -156,6 +157,7 @@ def remove_wall(grid, coord):
 
     return grid
 
+
 if __name__ == "__main__":
     print("=== Тестирование ===")
 
@@ -184,5 +186,3 @@ if __name__ == "__main__":
         import traceback
 
         traceback.print_exc()
-  
-           
