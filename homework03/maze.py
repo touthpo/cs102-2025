@@ -21,7 +21,7 @@ def remove_wall(
     """
     row, col = coord
     if 0 <= row < len(grid) and 0 <= col < len(grid[0]):
-        if grid[row][col] != "X":
+        if grid[row][col] != "■":
             grid[row][col] = " "
     return grid
 
@@ -109,42 +109,33 @@ def make_step(grid: List[List[Union[str, int]]], k: int) -> List[List[Union[str,
 
 
 def shortest_path(
-    grid: List[List[Union[str, int]]], exit_coord: Tuple[int, int]
-) -> Optional[Union[Tuple[int, int], List[Tuple[int, int]]]]:
+    grid: List[List[Union[str, int]]], 
+    exit_coord: Tuple[int, int]
+) -> Optional[List[Tuple[int, int]]]:
     """
-
-    :param grid:
-    :param exit_coord:
-    :return:
+    Восстанавливает кратчайший путь от выхода к входу.
     """
-    exit_row, exit_col = exit_coord
-    if not (0 <= exit_row < len(grid) and 0 <= exit_col < len(grid[0])):
+    exit_r, exit_c = exit_coord
+    if not isinstance(grid[exit_r][exit_c], int) or grid[exit_r][exit_c] <= 0:
         return None
-    if grid[exit_row][exit_col] == 0 or grid[exit_row][exit_col] == 'X':
-        return None
-    path_length = grid[exit_row][exit_col]
-    path = [exit_coord]
-    current_row, current_col = exit_coord
-    current_value = path_length
-    while current_value > 1:
+    
+    path = []
+    current = exit_coord
+    while True:
+        path.append(current)
+        r, c = current
+        current_val = grid[r][c]
+        if current_val == 1:
+            break
         found_next = False
-        directions = [
-            (current_row - 1, current_col),
-            (current_row + 1, current_col),
-            (current_row, current_col - 1),
-            (current_row, current_col + 1)
-        ]
-        
-        for next_row, next_col in directions:
-            if 0 <= next_row < len(grid) and 0 <= next_col < len(grid[0]):
-                if grid[next_row][next_col] == current_value - 1:
-                    path.append((next_row, next_col))
-                    current_row, current_col = next_row, next_col
-                    current_value -= 1
-                    found_next = True
-                    break
+        for nr, nc in [(r-1, c), (r+1, c), (r, c-1), (r, c+1)]:
+            if (0 <= nr < len(grid) and 0 <= nc < len(grid[0]) and 
+                isinstance(grid[nr][nc], int) and 
+                grid[nr][nc] == current_val - 1):
+                current = (nr, nc)
+                found_next = True
+                break
         if not found_next:
-            print(f"Ошибка: не могу найти клетку со значением {current_value - 1}")
             return None
     path.reverse()
     return path
@@ -186,18 +177,12 @@ def encircled_exit(grid: List[List[Union[str, int]]], coord: Tuple[int, int]) ->
 
 def solve_maze(
     grid: List[List[Union[str, int]]],
-) -> Tuple[List[List[Union[str, int]]], Optional[Union[Tuple[int, int], List[Tuple[int, int]]]]]:
+) -> Tuple[List[List[Union[str, int]]], Optional[List[Tuple[int, int]]]]:
     """
-
-    :param grid:
-    :return:
+    Решает лабиринт и возвращает (размеченный лабиринт, путь).
     """
-    maze = copy.deepcopy(grid)
-    exits = []
-    for i in range(len(maze)):
-        for j in range(len(maze[0])):
-            if maze[i][j] == "X":
-                exits.append((i, j))
+    maze = [row[:] for row in grid]
+    exits = get_exits(maze)
     if len(exits) != 2:
         return maze, None
     start, end = exits[0], exits[1]
@@ -205,19 +190,19 @@ def solve_maze(
         return maze, None
     for i in range(len(maze)):
         for j in range(len(maze[0])):
-            if maze[i][j] == " ":
+            if maze[i][j] == ' ':
                 maze[i][j] = 0
-            elif maze[i][j] == "X":
+            elif maze[i][j] == 'X':
                 if (i, j) == start:
                     maze[i][j] = 1
                 else:
                     maze[i][j] = 0
-    current_step = 1
+    step = 1
     while maze[end[0]][end[1]] == 0:
         cells_to_process = []
         for i in range(len(maze)):
             for j in range(len(maze[0])):
-                if maze[i][j] == current_step:
+                if maze[i][j] == step:
                     cells_to_process.append((i, j))
         if not cells_to_process:
             return maze, None
@@ -227,31 +212,12 @@ def solve_maze(
                 if (0 <= ni < len(maze) and 
                     0 <= nj < len(maze[0]) and 
                     maze[ni][nj] == 0):
-                    maze[ni][nj] = current_step + 1
-        current_step += 1
-        if current_step > len(maze) * len(maze[0]):
+                    maze[ni][nj] = step + 1
+        step += 1
+        if step > len(maze) * len(maze[0]):
             return maze, None
-    path = []
-    current = end
-    while maze[current[0]][current[1]] != 1:
-        path.append(current)
-        i, j = current
-        current_value = maze[i][j]
-        found = False
-        for di, dj in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-            ni, nj = i + di, j + dj
-            if (0 <= ni < len(maze) and 
-                0 <= nj < len(maze[0]) and 
-                maze[ni][nj] == current_value - 1):
-                current = (ni, nj)
-                found = True
-                break
-        if not found:
-            return maze, None
-    path.append(current)
-    path.reverse()
+    path = shortest_path(maze, end)
     return maze, path
-
 
 def add_path_to_grid(
     grid: List[List[Union[str, int]]], path: Optional[Union[Tuple[int, int], List[Tuple[int, int]]]]
