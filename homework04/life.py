@@ -1,6 +1,7 @@
 import pathlib
 import random
 import typing as tp
+from typing import List, Optional, Tuple
 
 import pygame
 from pygame.locals import *
@@ -45,7 +46,7 @@ class GameOfLife:
                 if 0 <= nx < self.cols and 0 <= ny < self.rows:
                     neighbours.append((nx, ny))
 
-	return neighbours
+        return neighbours
 
     def get_next_generation(self) -> Grid:
         new_grid = []
@@ -92,7 +93,7 @@ class GameOfLife:
 
     @staticmethod
     def from_file(filename: pathlib.Path) -> "GameOfLife":
-                with open(filename, "r") as f:
+        with open(filename, "r") as f:
             lines = f.readlines()
 
         lines = [line.strip() for line in lines if line.strip()]
