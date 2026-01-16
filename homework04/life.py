@@ -75,7 +75,6 @@ class GameOfLife:
 
         return new_grid
 
-
     def step(self) -> None:
         self.prev_generation = [row[:] for row in self.curr_generation]
 
