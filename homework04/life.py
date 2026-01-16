@@ -6,9 +6,9 @@ from typing import List, Optional, Tuple
 import pygame
 from pygame.locals import *
 
-Cell = tp.Tuple[int, int]
-Cells = tp.List[int]
-Grid = tp.List[Cells]
+Cell = Tuple[int, int]
+Cells = List[Cell]
+Grid = List[List[int]]
 
 
 class GameOfLife:
