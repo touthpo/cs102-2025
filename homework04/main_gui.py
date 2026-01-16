@@ -10,4 +10,3 @@ if __name__ == "__main__":
 
     gui = GUI(life, cell_size=15, speed=10)
     gui.run()
-
