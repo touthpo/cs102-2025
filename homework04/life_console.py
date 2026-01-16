@@ -137,5 +137,3 @@ if __name__ == "__main__":
     life = GameOfLife((15, 30), randomize=True, max_generations=50)
     console = Console(life)
     console.run()
-
-
