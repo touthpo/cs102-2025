@@ -1,10 +1,6 @@
 import pathlib
 import random
-import typing as tp
 from typing import List, Optional, Tuple
-
-import pygame
-from pygame.locals import *
 
 Cell = Tuple[int, int]
 Cells = List[Cell]
