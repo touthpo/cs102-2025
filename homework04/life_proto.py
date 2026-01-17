@@ -115,15 +115,6 @@ class GameOfLife:
 
         pygame.quit()
 
-        def some_function():
-            """
-            Returns
-            -------
-            out : Cells
-                Список соседних клеток, в котором каждая позиция - 0 или 1.
-            """
-            pass
-
 
 if __name__ == "__main__":
     game = GameOfLife(320, 240, 20)
