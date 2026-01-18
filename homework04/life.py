@@ -1,7 +1,7 @@
 import pathlib
 import random
 from typing import List, Optional, Tuple
-
+1
 Cell = Tuple[int, int]
 Cells = List[Cell]
 Grid = List[List[int]]
