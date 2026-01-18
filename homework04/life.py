@@ -3,7 +3,7 @@ import random
 from typing import List, Optional, Tuple
 
 Cell = Tuple[int, int]
-Cells = List[Cell]
+Cells = List[int]
 Grid = List[List[int]]
 
 
@@ -40,7 +40,7 @@ class GameOfLife:
                 nx, ny = x + dx, y + dy
 
                 if 0 <= nx < self.cols and 0 <= ny < self.rows:
-                    neighbours.append((nx, ny))
+                    neighbours.append(self.curr_generation[ny][nx])
 
         return neighbours
 
@@ -52,7 +52,7 @@ class GameOfLife:
             for x in range(self.cols):
                 neighbours = self.get_neighbours((x, y))
 
-                live_neighbours = sum(1 for nx, ny in neighbours if self.curr_generation[ny][nx] == 1)
+                live_neighbours = sum(neighbours)
 
                 current = self.curr_generation[y][x]
 
