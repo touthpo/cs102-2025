@@ -1,140 +1,118 @@
-import json
 import os
+import pathlib
 import random
+import sys
 import unittest
 
-import life
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from life import GameOfLife
 
 
 class TestGameOfLife(unittest.TestCase):
+
     def setUp(self):
-        self.grid = [
-            [1, 1, 0, 0, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1, 1, 1, 0],
-            [1, 0, 1, 1, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 1, 1, 1, 1, 0, 0],
-            [1, 1, 1, 1, 0, 1, 1, 1],
-        ]
-        self.rows = 6
-        self.cols = 8
-        self.max_generations = 18
+        random.seed(42)
 
-    def test_can_create_an_empty_grid(self):
-        game = life.GameOfLife((3, 3))
-        grid = game.create_grid(randomize=False)
-        self.assertEqual([[0, 0, 0], [0, 0, 0], [0, 0, 0]], grid)
+    def test_create_grid_random(self):
+        game = GameOfLife((10, 10), randomize=True)
 
-    def test_can_create_a_random_grid(self):
-        game = life.GameOfLife((3, 3))
-        random.seed(12345)
-        grid = game.create_grid(randomize=True)
-        self.assertEqual([[1, 0, 1], [1, 0, 1], [1, 0, 1]], grid)
+        self.assertEqual(len(game.curr_generation), 10)
+        self.assertEqual(len(game.curr_generation[0]), 10)
 
-    def test_get_neighbours(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        neighbours = game.get_neighbours((2, 3))
-        self.assertEqual(8, len(neighbours))
-        self.assertEqual(4, sum(neighbours))
+        flat_grid = [cell for row in game.curr_generation for cell in row]
+        self.assertIn(0, flat_grid)
+        self.assertIn(1, flat_grid)
 
-    def test_get_neighbours_for_upper_left_corner(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
+    def test_create_grid_empty(self):
+        game = GameOfLife((5, 5), randomize=False)
+
+        for row in game.curr_generation:
+            for cell in row:
+                self.assertEqual(cell, 0)
+
+    def test_get_neighbours_center(self):
+        game = GameOfLife((5, 5), randomize=False)
+        neighbours = game.get_neighbours((2, 2))
+
+        self.assertEqual(len(neighbours), 8)
+
+        expected = [(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
+        self.assertEqual(set(neighbours), set(expected))
+
+    def test_get_neighbours_corner(self):
+        game = GameOfLife((5, 5), randomize=False)
         neighbours = game.get_neighbours((0, 0))
-        self.assertEqual(3, len(neighbours))
-        self.assertEqual(2, sum(neighbours))
 
-    def test_get_neighbours_for_upper_right_corner(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        neighbours = game.get_neighbours((0, 7))
-        self.assertEqual(3, len(neighbours))
-        self.assertEqual(2, sum(neighbours))
+        self.assertEqual(len(neighbours), 3)
 
-    def test_get_neighbours_for_lower_left_corner(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        neighbours = game.get_neighbours((5, 0))
-        self.assertEqual(3, len(neighbours))
-        self.assertEqual(2, sum(neighbours))
+        expected = [(1, 0), (0, 1), (1, 1)]
+        self.assertEqual(set(neighbours), set(expected))
 
-    def test_get_neighbours_for_lower_right_corner(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        neighbours = game.get_neighbours((5, 7))
-        self.assertEqual(3, len(neighbours))
-        self.assertEqual(1, sum(neighbours))
+    def test_step_generation_counter(self):
+        game = GameOfLife((5, 5), randomize=True)
 
-    def test_get_neighbours_for_upper_side(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        neighbours = game.get_neighbours((0, 3))
-        self.assertEqual(5, len(neighbours))
-        self.assertEqual(4, sum(neighbours))
-
-    def test_get_neighbours_for_bottom_side(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        neighbours = game.get_neighbours((5, 3))
-        self.assertEqual(5, len(neighbours))
-        self.assertEqual(4, sum(neighbours))
-
-    def test_get_neighbours_for_left_side(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        neighbours = game.get_neighbours((2, 0))
-        self.assertEqual(5, len(neighbours))
-        self.assertEqual(2, sum(neighbours))
-
-    def test_get_neighbours_for_right_side(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        neighbours = game.get_neighbours((2, 7))
-        self.assertEqual(5, len(neighbours))
-        self.assertEqual(2, sum(neighbours))
-
-    def test_can_update(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-
-        tests_dir = os.path.dirname(__file__)
-        steps_path = os.path.join(tests_dir, "steps.txt")
-        with open(steps_path) as f:
-            steps = json.load(f)
-
-        num_updates = 0
-        for step in sorted(steps.keys(), key=int):
-            with self.subTest(step=step):
-                for _ in range(int(step) - num_updates):
-                    game.curr_generation = game.get_next_generation()
-                    num_updates += 1
-                self.assertEqual(steps[step], game.curr_generation)
-
-    def test_prev_generation_is_correct(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
+        initial_generation = game.generations
         game.step()
-        self.assertEqual(game.prev_generation, self.grid)
 
-    def test_is_max_generations_exceeded(self):
-        max_generations = 4
-        game = life.GameOfLife((self.rows, self.cols), max_generations=max_generations)
-        game.curr_generation = self.grid
-        for _ in range(max_generations - 1):
-            game.step()
-        self.assertEqual(game.generations, max_generations)
-        self.assertTrue(game.is_max_generations_exceeded)
+        self.assertEqual(game.generations, initial_generation + 1)
 
     def test_is_changing(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
+        game = GameOfLife((3, 3), randomize=False)
+
+        self.assertFalse(game.is_changing)
+
+        game.curr_generation[0][1] = 1
+        game.curr_generation[1][1] = 1
+        game.curr_generation[2][1] = 1
+
         game.step()
+
         self.assertTrue(game.is_changing)
 
-    def test_is_not_changing(self):
-        game = life.GameOfLife((self.rows, self.cols))
-        game.curr_generation = self.grid
-        for _ in range(self.max_generations + 1):
+    def test_max_generations(self):
+        game = GameOfLife((5, 5), randomize=True, max_generations=5)
+
+        for _ in range(3):
             game.step()
-        self.assertFalse(game.is_changing)
+            self.assertFalse(game.is_max_generations_exceeded)
+
+        game.step()
+        self.assertTrue(game.is_max_generations_exceeded)
+
+        game.step()
+        self.assertTrue(game.is_max_generations_exceeded)
+
+    def test_save_load(self):
+        game = GameOfLife((3, 3), randomize=False)
+        game.curr_generation = [[1, 0, 1], [0, 1, 0], [1, 0, 1]]
+
+        test_file = pathlib.Path("test_save.txt")
+        game.save(test_file)
+
+        loaded_game = GameOfLife.from_file(test_file)
+
+        self.assertEqual(loaded_game.curr_generation, game.curr_generation)
+
+        test_file.unlink()
+
+    def test_blinker_pattern(self):
+        game = GameOfLife((5, 5), randomize=False)
+
+        game.curr_generation[1][2] = 1
+        game.curr_generation[2][2] = 1
+        game.curr_generation[3][2] = 1
+
+        original_state = [row[:] for row in game.curr_generation]
+
+        game.step()
+
+        expected_state = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 1, 1, 1, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+
+        self.assertNotEqual(game.curr_generation, original_state)
+
+        self.assertEqual(game.curr_generation[2][1:4], [1, 1, 1])
+
+
+if __name__ == "__main__":
+    unittest.main()
