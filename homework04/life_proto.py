@@ -5,7 +5,7 @@ import pygame
 from pygame.locals import K_ESCAPE, K_SPACE, KEYDOWN, MOUSEBUTTONDOWN, QUIT, K_r
 
 Cell = Tuple[int, int]
-Cells = List[Cell]
+Cells = List[int]
 Grid = List[List[int]]
 
 
@@ -49,7 +49,7 @@ class GameOfLife:
 
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < self.cell_width and 0 <= ny < self.cell_height:
-                    neighbours.append((nx, ny))
+                    neighbours.append(self.grid[ny][nx])
 
         return neighbours
 
@@ -60,7 +60,7 @@ class GameOfLife:
             new_row = []
             for x in range(self.cell_width):
                 neighbours = self.get_neighbours((x, y))
-                live_neighbours = sum(1 for nx, ny in neighbours if self.grid[ny][nx] == 1)
+                live_neighbours = sum(neighbours)
 
                 current = self.grid[y][x]
 
